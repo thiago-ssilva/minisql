@@ -1,2 +1,3 @@
 [workspace]
-resolver=2
+resolver= "2"
+members = [ "sql_mini_parser","sql_mini_repl"]
