@@ -68,19 +68,6 @@ pub struct CreateStatement {
 }
 
 //parses a comma seperated list of column and definitions contained in parens
-//fn column_definitions(input: RawSpan<'_>) -> ParseResult<'_, Vec<Column>> {
-//    let mut parser = context(
-//        "Column Definitions",
-//        map(
-//            delimited(tag("("), comma_sep(Column::parse), tag(")")),
-//            |(_, cols, _)| cols,
-//        ),
-//    );
-//
-//    //parser.parse(input)
-//    let test: Vec<Column> = Vec::new();
-//    Ok(test)
-//}
 fn column_definitions(input: RawSpan<'_>) -> ParseResult<'_, Vec<Column>> {
     let mut parser = context(
         "Column Definitions",
