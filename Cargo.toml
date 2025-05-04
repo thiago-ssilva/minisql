@@ -1,3 +1,8 @@
 [workspace]
 resolver= "2"
-members = [ "sql_mini_parser","sql_mini_repl"]
+members = [ "sql_mini_execution", "sql_mini_parser","sql_mini_repl"]
+
+[workspace.dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
+derive_more = { version = "2.0.1", features = ["display", "from"] }
+thiserror = "2.0.12"

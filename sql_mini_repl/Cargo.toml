@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 rustyline = "15.0.0"
+sql_mini_execution = { version = "0.1.0", path = "../sql_mini_execution" }
+sql_mini_parser = { path = "../sql_mini_parser" }
