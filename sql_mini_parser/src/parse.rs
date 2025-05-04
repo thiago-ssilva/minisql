@@ -1,9 +1,9 @@
 use nom::{
-    bytes::complete::{tag, take_while1},
+    bytes::complete::{tag, tag_no_case, take_while1},
     character::complete::multispace0,
-    combinator::map,
+    combinator::{map, peek},
     multi::separated_list1,
-    sequence::delimited,
+    sequence::{delimited, pair},
     IResult, Parser,
 };
 use nom_locate::LocatedSpan;
@@ -34,6 +34,24 @@ pub trait Parse<'a>: Sized {
         let i = LocatedSpan::new(input);
         Self::parse(i)
     }
+}
+
+/// Check if the input has the passed in tag
+/// if so run the parser supplied (with the peeked tag still expected)
+/// and cut on error
+///
+/// This is useful on alts so we stop on errors
+pub(crate) fn peek_then_cut<'a, T, O, E, F>(
+    peek_tag: T,
+    f: F,
+) -> impl nom::Parser<RawSpan<'a>, Output = O, Error = E>
+where
+    T: nom::Input + Clone,
+    F: nom::Parser<RawSpan<'a>, Output = O, Error = E>,
+    E: nom::error::ParseError<RawSpan<'a>>,
+    LocatedSpan<&'a str>: nom::Compare<T>,
+{
+    map(pair(peek(tag_no_case(peek_tag)), f), |(_, f_res)| f_res)
 }
 
 pub(crate) fn comma_sep<'a, O, E, F>(
