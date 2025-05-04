@@ -11,8 +11,8 @@ use crate::{
 
 #[derive(Debug, Clone, Default, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct InsertStatement {
-    table: String,
-    values: Vec<Value>,
+    pub table: String,
+    pub values: Vec<Value>,
 }
 
 impl<'a> Parse<'a> for InsertStatement {
