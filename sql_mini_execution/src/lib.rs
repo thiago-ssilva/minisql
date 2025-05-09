@@ -2,9 +2,8 @@ use std::collections::HashMap;
 
 use derive_more::Display;
 use error::QueryExecutionError;
-use row::Row;
 use sql_mini_parser::ast::SqlQuery;
-use table::Table;
+use table::{Table, TableIter};
 
 pub mod error;
 pub mod row;
@@ -13,7 +12,7 @@ pub mod table;
 #[derive(Debug, Display)]
 pub enum ExecResponse<'a> {
     #[display("{_0:?}")]
-    Select(Vec<Row<'a>>),
+    Select(TableIter<'a>),
     Insert,
     Create,
 }
@@ -33,14 +32,14 @@ impl Execution {
     pub fn run(&mut self, query: SqlQuery) -> Result<ExecResponse, QueryExecutionError> {
         match query {
             SqlQuery::Select(select) => {
+                let columns = select.fields;
                 let table = select.table;
                 let table = self
                     .tables
                     .get(&table)
                     .ok_or(QueryExecutionError::TableNotFound(table))?;
 
-                let rows = table.into_iter().collect();
-                Ok(ExecResponse::Select(rows))
+                Ok(ExecResponse::Select(table.select(columns)?))
             }
             SqlQuery::Insert(insert) => {
                 let Some(table) = self.tables.get_mut(&insert.table) else {

@@ -76,14 +76,25 @@ impl Table {
         self.rows.insert(id, row.into());
         Ok(())
     }
+
+    pub fn select(&self, columns: Vec<String>) -> Result<TableIter, QueryExecutionError> {
+        let selected_columns = columns
+            .into_iter()
+            .map(|name| self.columns.find_column(&name).map(|col| col.clone()))
+            .collect::<Result<Vec<_>, _>>()?;
+
+        let col_info = Rc::new(selected_columns.into());
+        Ok(TableIter::new(self.rows.iter(), col_info))
+    }
 }
 
 // Iterator of [`Row`]s from a table
-pub(crate) struct TableIter<'a> {
+#[derive(Debug)]
+pub struct TableIter<'a> {
     /// Underlying iterator over the btree_map
     map_iter: std::collections::btree_map::Iter<'a, usize, StoredRow>,
     /// The columns of the [`Table`]
-    columns: Rc<ColumnInfo>,
+    pub columns: Rc<ColumnInfo>,
 }
 
 impl<'a> TableIter<'a> {
@@ -106,7 +117,7 @@ impl<'a> Iterator for TableIter<'a> {
                 .filter_map(|(key, value)| self.columns.find_column(key).ok().map(|_| (key, value)))
                 .collect();
 
-            Row::new(self.columns.clone(), *id, projected_data)
+            Row::new(*id, projected_data)
         })
     }
 }
